@@ -282,7 +282,49 @@ let get_balance (p, ledger, token_metadata : balance_of_params * ledger * token_
   let responses = List.map to_balance p.requests in
   Tezos.transaction responses 0mutez p.callback
 
-(* TODO: Look to see if this function can be simplified. Also split this to multiple helper functions. *)
+let transfer_update_ledger (token_id, to_addr, ledger : token_id * address * ledger) : ledger = 
+  Big_map.update token_id (Some to_addr) ledger
+
+let transfer_update_reverse_ledger (token_id, from_addr, to_addr, reverse_ledger : token_id * address * address * reverse_ledger) : reverse_ledger = 
+  (* Removes token id from sender *)
+  let new_rv = 
+    match Big_map.find_opt from_addr reverse_ledger with
+    | None -> (failwith fa2_insufficient_balance : reverse_ledger)
+    | Some tk_id -> 
+       Big_map.update 
+         from_addr
+         (Some (List.fold (
+                    fun (new_list, tk_id_l: token_id list * token_id) ->
+                    if tk_id_l = token_id
+                    then new_list
+                    else tk_id_l :: new_list
+                  ) tk_id ([]: token_id list))) 
+         reverse_ledger
+  in
+  (* Adds token id to recipient *)
+  let updated_rv = 
+    match Big_map.find_opt to_addr new_rv with
+    | None -> Big_map.add to_addr [token_id] new_rv
+    | Some tk_id -> Big_map.update to_addr (Some (token_id :: tk_id)) new_rv in
+  updated_rv
+
+let transfer_update_token_metadata (token_id, token_metadata : token_id * token_metadata_storage) : token_metadata_storage = 
+  (* Advance the warranty NFT according to its defined mechanics *)
+  match Big_map.find_opt token_id token_metadata with
+  | None -> (failwith fa2_insufficient_balance : token_metadata_storage)
+  | Some tk_meta ->
+     let tk_info = tk_meta.token_info in
+     (* Decrements the transfers allowed by 1 *)
+     let new_num_transfers = tk_info.num_transfers_allowed - 1n in
+     (* Check if the warranty is still valid *)
+     let still_valid = is_not_expired (tk_info) in
+     if new_num_transfers < 0 || still_valid <> true
+     then (failwith err_transfer_not_permitted : token_metadata_storage)
+     else 
+       let new_token_metadata = Big_map.update token_id 
+                                  (Some {tk_meta with token_info.num_transfers_allowed = abs (new_num_transfers) })
+                                  token_metadata in 
+       new_token_metadata
 
 (**
 Update leger balances according to the specified transfers. Fails if any of the
@@ -306,47 +348,11 @@ let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger, token_metad
             | Some o -> 
                if o <> tx.from_
                then (failwith fa2_not_owner : ledger * reverse_ledger * token_metadata_storage)
-               else 
-                 begin
-                   let _u = validate_op (o, Tezos.sender, dst.token_id, ops_storage) in
-                   let new_l = Big_map.update dst.token_id (Some dst.to_) l in
-                   (* Removes token id from sender *)
-                   let new_rv_l = 
-                     match Big_map.find_opt tx.from_ rv_l with
-                     | None -> (failwith fa2_insufficient_balance : reverse_ledger)
-                     | Some tk_id_l -> 
-                        Big_map.update 
-                          tx.from_ 
-                          (Some (List.fold (
-                                     fun (new_list, token_id: token_id list * token_id) ->
-                                     if token_id = dst.token_id
-                                     then new_list
-                                     else token_id :: new_list
-                                   ) tk_id_l ([]: token_id list))) 
-                          rv_l 
-                   in
-                   (* Adds token id to recipient *)
-                   let updated_rv_l = 
-                     match Big_map.find_opt dst.to_ new_rv_l with
-                     | None -> Big_map.add dst.to_ [dst.token_id] new_rv_l
-                     | Some tk_id_l -> Big_map.update dst.to_ (Some (dst.token_id :: tk_id_l)) new_rv_l in
-                   (* Advance the warranty NFT according to its defined mechanics *)
-                   let new_token_metadata = 
-                     match Big_map.find_opt dst.token_id tm with
-                     | None -> (failwith fa2_insufficient_balance : token_metadata_storage)
-                     | Some tk_meta ->
-                        let tk_info = tk_meta.token_info in
-                        (* Decrements the transfers allowed by 1 *)
-                        let new_num_transfers = tk_info.num_transfers_allowed - 1n in
-                        (* Check if the warranty is still valid *)
-                        let still_valid = is_not_expired (tk_info) in
-                        if new_num_transfers < 0 || still_valid <> true
-                        then (failwith err_transfer_not_permitted : token_metadata_storage)
-                        else Big_map.update dst.token_id 
-                               (Some {tk_meta with token_info.num_transfers_allowed = abs (new_num_transfers) })
-                               tm in
-                   new_l, updated_rv_l, new_token_metadata
-                 end
+               else let _u = validate_op (o, Tezos.sender, dst.token_id, ops_storage) in
+                    let new_l = transfer_update_ledger (dst.token_id, dst.to_, l) in
+                    let new_rv = transfer_update_reverse_ledger (dst.token_id, tx.from_, dst.to_, rv_l) in
+                    let new_token_metadata = transfer_update_token_metadata (dst.token_id, tm) in
+                    new_l, new_rv, new_token_metadata
         ) tx.txs (l, rv_l, tm)
     ) in 
   let (l, rv_l, new_token_metadata) = List.fold make_transfer txs (ledger, reverse_ledger, token_metadata) in 
