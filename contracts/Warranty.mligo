@@ -5,6 +5,23 @@ types of NFTs. Each NFT type is represented by the range of token IDs - `token_d
 
 type token_id = nat
 
+type token_info = 
+  [@layout:comb]
+    {
+      (* Pertinent entities *)
+      owner: address;
+      issuer: address;
+
+      (* Warranty details *)
+      serial_number: string;
+      issue_time: timestamp;
+      warranty_duration: nat;   (* In days *)
+      link_to_warranty_conditions: bytes;
+
+      (* Warranty mechanics *)
+      num_transfers_allowed: nat;
+    }
+
 type transfer_destination =
   [@layout:comb]
     {
@@ -34,14 +51,14 @@ type balance_of_response =
       balance : nat;
     }
 
-type balance_of_param =
+type balance_of_params =
   [@layout:comb]
     {
       requests : balance_of_request list;
       callback : (balance_of_response list) contract;
     }
 
-type operator_param =
+type operator_params =
   [@layout:comb]
     {
       owner : address;
@@ -51,14 +68,14 @@ type operator_param =
 
 type update_operator =
   [@layout:comb]
-| Add_operator of operator_param
-| Remove_operator of operator_param
+| Add_operator of operator_params
+| Remove_operator of operator_params
 
 type token_metadata =
   [@layout:comb]
     {
       token_id : token_id;
-      token_info : (string, bytes) map;
+      token_info : token_info;
     }
 
 (*
@@ -71,7 +88,7 @@ type token_metadata_storage = (token_id, token_metadata) big_map
 Optional type to define view entry point to expose token_metadata on chain or
 as an external view
  *)
-type token_metadata_param = 
+type token_metadata_params = 
   [@layout:comb]
     {
       token_ids : token_id list;
@@ -81,16 +98,25 @@ type token_metadata_param =
 type mint_params =
   [@layout:comb]
     {
-      link_to_metadata: bytes;
+      (* Pertinent entities *)
       owner: address;
+      issuer: address;
+
+      (* Warranty details *)
+      serial_number: string;
+      issue_time: timestamp;
+      warranty_duration: nat;   (* In days *)
+      link_to_warranty_conditions: bytes;
+
+      (* Warranty mechanics *)
+      num_transfers_allowed: nat;
     }
 
 type fa2_entry_points =
   | Transfer of transfer list
-  | Balance_of of balance_of_param
+  | Balance_of of balance_of_params
   | Update_operators of update_operator list
   | Mint of mint_params
-  | Burn of token_id
 
 (* 
  TZIP-16 contract metadata storage field type. 
@@ -116,7 +142,7 @@ type transfer_descriptor =
       txs : transfer_destination_descriptor list
     }
 
-type transfer_descriptor_param =
+type transfer_descriptor_params =
   [@layout:comb]
     {
       batch : transfer_descriptor list;
@@ -185,6 +211,10 @@ Reference implementation of the FA2 operator storage, config API and
 helper functions 
  *)
 
+(**
+The transfer of an warranty NFT is not permitted according to its defined mechanics
+ *)
+let err_transfer_not_permitted = "TRANSFER_NOT_PERMITTED"
 
 (* 
   Permission policy definition. 
@@ -316,6 +346,14 @@ let validate_operator (tx_policy, txs, ops_storage
         ) tx.txs
     ) txs
 
+(**
+Checks whether a warranty NFT has not expired.
+*)
+let is_not_expired (token_info : token_info) : bool = 
+  let one_day : int = 86400 in
+  let still_valid = Tezos.now < token_info.issue_time + (token_info.warranty_duration * one_day) in
+  still_valid
+
 (* range of nft tokens *)
 type token_def =
   [@layout:comb]
@@ -349,17 +387,23 @@ type nft_token_storage = {
 Retrieve the balances for the specified tokens and owners
 @return callback operation
  *)
-let get_balance (p, ledger : balance_of_param * ledger) : operation =
+let get_balance (p, ledger, token_metadata : balance_of_params * ledger * token_metadata_storage) : operation =
   let to_balance = fun (r : balance_of_request) ->
     let owner = Big_map.find_opt r.token_id ledger in
-    match owner with
-    | None -> (failwith fa2_token_undefined : balance_of_response)
-    | Some o ->
-       let bal = if o = r.owner then 1n else 0n in
+    let tk_meta = Big_map.find_opt r.token_id token_metadata in
+    match (owner, tk_meta) with
+    | None, _ -> (failwith fa2_token_undefined : balance_of_response)
+    | _, None -> (failwith fa2_token_undefined : balance_of_response)
+    | Some o, Some tk_m ->
+       let bal = if o = r.owner && is_not_expired (tk_m.token_info)
+                 then 1n 
+                 else 0n in
        { request = r; balance = bal; }
   in
   let responses = List.map to_balance p.requests in
   Tezos.transaction responses 0mutez p.callback
+
+(* TODO: Look to see if this function can be simplified. Also split this to multiple helper functions. *)
 
 (**
 Update leger balances according to the specified transfers. Fails if any of the
@@ -367,28 +411,28 @@ permissions or constraints are violated.
 @param txs transfers to be applied to the ledger
 @param validate_op function that validates of the tokens from the particular owner can be transferred. 
  *)
-let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger
-                                                     : (transfer list) * operator_validator * operator_storage * ledger * reverse_ledger) : ledger * reverse_ledger =
-  (* process individual transfer *)
-  let make_transfer = (fun ((l, rv_l), tx : (ledger * reverse_ledger) * transfer) ->
+let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger, token_metadata
+                                                     : (transfer list) * operator_validator * operator_storage * ledger * reverse_ledger * token_metadata_storage) : ledger * reverse_ledger * token_metadata_storage =
+  (* Process individual transfer *)
+  let make_transfer = (fun ((l, rv_l, tm), tx : (ledger * reverse_ledger * token_metadata_storage) * transfer) ->
       List.fold 
-        (fun ((ll, rv_ll), dst : (ledger * reverse_ledger) * transfer_destination) ->
+        (fun ((ll, rv_ll, tm_l), dst : (ledger * reverse_ledger * token_metadata_storage) * transfer_destination) ->
           if dst.amount = 0n
-          then ll, rv_ll
+          then ll, rv_ll, tm_l
           else if dst.amount <> 1n
-          then (failwith fa2_insufficient_balance : ledger * reverse_ledger)
+          then (failwith fa2_insufficient_balance : ledger * reverse_ledger * token_metadata_storage)
           else
             let owner = Big_map.find_opt dst.token_id ll in
             match owner with
-            | None -> (failwith fa2_token_undefined : ledger * reverse_ledger)
+            | None -> (failwith fa2_token_undefined : ledger * reverse_ledger * token_metadata_storage)
             | Some o -> 
                if o <> tx.from_
-               then (failwith fa2_not_owner : ledger * reverse_ledger)
+               then (failwith fa2_not_owner : ledger * reverse_ledger * token_metadata_storage)
                else 
                  begin
                    let _u = validate_op (o, Tezos.sender, dst.token_id, ops_storage) in
                    let new_ll = Big_map.update dst.token_id (Some dst.to_) ll in
-                   (* removes token id from sender *)
+                   (* Removes token id from sender *)
                    let new_rv_ll = 
                      match Big_map.find_opt tx.from_ rv_ll with
                      | None -> (failwith fa2_insufficient_balance : reverse_ledger)
@@ -403,18 +447,33 @@ let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger
                                    ) tk_id_l ([]: token_id list))) 
                           rv_ll 
                    in
-                   (* adds token id to recipient *)
+                   (* Adds token id to recipient *)
                    let updated_rv_ll = 
                      match Big_map.find_opt dst.to_ new_rv_ll with
                      | None -> Big_map.add dst.to_ [dst.token_id] new_rv_ll
                      | Some tk_id_l -> Big_map.update dst.to_ (Some (dst.token_id :: tk_id_l)) new_rv_ll in
-
-                   new_ll, updated_rv_ll
+                   (* Advance the warranty NFT according to its defined mechanics *)
+                   let new_token_metadata = 
+                     match Big_map.find_opt dst.token_id tm_l with
+                     | None -> (failwith fa2_insufficient_balance : token_metadata_storage)
+                     | Some tk_meta ->
+                        let tk_info = tk_meta.token_info in
+                        (* Decrements the transfers allowed by 1 *)
+                        let new_num_transfers = tk_info.num_transfers_allowed - 1n in
+                        (* Check if the warranty is still valid *)
+                        let still_valid = is_not_expired (tk_info) in
+                        if new_num_transfers < 0 || still_valid <> true
+                        then (failwith err_transfer_not_permitted : token_metadata_storage)
+                        else Big_map.update dst.token_id 
+                               (Some {tk_meta with token_info.num_transfers_allowed = abs (new_num_transfers) })
+                               tm_l in
+                   new_ll, updated_rv_ll, new_token_metadata
                  end
-        ) tx.txs (l, rv_l)
+        ) tx.txs (l, rv_l, tm)
     )
   in 
-  List.fold make_transfer txs (ledger, reverse_ledger)
+  let (l, rv_l, new_token_metadata) = List.fold make_transfer txs (ledger, reverse_ledger, token_metadata) in 
+  (l, rv_l, new_token_metadata)
 
 (** Finds a definition of the token type (token_id range) associated with the provided token id *)
 let find_token_def (tid, token_defs : token_id * (token_def set)) : token_def =
@@ -442,17 +501,20 @@ let get_metadata (tokens, meta : (token_id list) * token_storage )
     ) tokens
 
 let mint (p, s: mint_params * nft_token_storage): nft_token_storage =
-  let { link_to_metadata; owner } = p in
   let token_id = s.next_token_id in
+  let token_info = { owner = p.owner; issuer = p.issuer; serial_number = p.serial_number;
+                     issue_time = p.issue_time; warranty_duration = p.warranty_duration;
+                     link_to_warranty_conditions = p.link_to_warranty_conditions;
+                     num_transfers_allowed = p.num_transfers_allowed; } in
   (* Updates the ledger *)
-  let new_ledger = Big_map.add token_id owner s.ledger in
+  let new_ledger = Big_map.add token_id p.owner s.ledger in
   (* Updates the reverse ledger *)
   let new_reverse_ledger = 
-    match Big_map.find_opt owner s.reverse_ledger with
-    | None -> Big_map.add owner [token_id] s.reverse_ledger
-    | Some l -> Big_map.update owner (Some (token_id :: l)) s.reverse_ledger in
+    match Big_map.find_opt p.owner s.reverse_ledger with
+    | None -> Big_map.add p.owner [token_id] s.reverse_ledger
+    | Some l -> Big_map.update p.owner (Some (token_id :: l)) s.reverse_ledger in
   (* Stores the metadata *)
-  let new_entry = { token_id = token_id; token_info = Map.literal [("", link_to_metadata)] } in
+  let new_entry = { token_id = token_id; token_info = token_info } in
   
   { 
     s with 
@@ -462,34 +524,32 @@ let mint (p, s: mint_params * nft_token_storage): nft_token_storage =
     next_token_id = token_id + 1n;
   }
 
-let burn (p, s: token_id * nft_token_storage): nft_token_storage =
-  (* removes token from the ledger *)
-  let new_ledger: ledger =
-    match Big_map.find_opt p s.ledger with
-    | None -> (failwith "UNKNOWN_TOKEN": ledger)
-    | Some owner ->
-       if owner <> Tezos.sender
-       then (failwith "NOT_TOKEN_OWNER": ledger)
-       else
-         Big_map.remove p s.ledger
-  in
-  (* removes token from the reverse ledger *)
-  let new_reverse_ledger: reverse_ledger =
-    match Big_map.find_opt Tezos.sender s.reverse_ledger with
-    | None -> (failwith "NOT_A_USER": reverse_ledger)
-    | Some tk_id_l -> 
-       Big_map.update 
-         Tezos.sender 
-         (Some (List.fold (
-                    fun (new_list, token_id: token_id list * token_id) ->
-                    if token_id = p
-                    then new_list
-                    else token_id :: new_list
-                  ) tk_id_l ([]: token_id list))) 
-         s.reverse_ledger
-  in { s with ledger = new_ledger; reverse_ledger = new_reverse_ledger }
 
+(* TODO: 
+   - Add simple admin functionality
+   - Clean up unused types and variables. Try to split code into separate files.
+ *)
+let main (param, storage : fa2_entry_points * nft_token_storage)
+    : (operation  list) * nft_token_storage =
+  match param with
+  | Transfer txs ->
+     let (new_ledger, new_reverse_ledger, _) = transfer 
+                                              (txs, default_operator_validator, storage.operators, 
+                                               storage.ledger, storage.reverse_ledger, storage.token_metadata) in
+     let new_storage = { storage with ledger = new_ledger; reverse_ledger = new_reverse_ledger } in
+     ([] : operation list), new_storage
 
+  | Balance_of p ->
+     let op = get_balance (p, storage.ledger, storage.token_metadata) in
+     [op], storage
+
+  | Update_operators updates ->
+     let new_ops = fa2_update_operators (updates, storage.operators) in
+     let new_storage = { storage with operators = new_ops; } in
+     ([] : operation list), new_storage
+
+  | Mint p ->
+     ([]: operation list), mint (p, storage)
 
 (* let store : nft_token_storage = {
  *     ledger = (Big_map.empty: (token_id, address) big_map);
@@ -504,54 +564,3 @@ let burn (p, s: token_id * nft_token_storage): nft_token_storage =
  *     admin = ("tz1Me1MGhK7taay748h4gPnX2cXvbgL6xsYL": address);
  *   } *)
 
-
-let main (param, storage : fa2_entry_points * nft_token_storage)
-    : (operation  list) * nft_token_storage =
-  match param with
-  | Transfer txs ->
-     let (new_ledger, new_reverse_ledger) = transfer 
-                                              (txs, default_operator_validator, storage.operators, storage.ledger, storage.reverse_ledger) in
-     let new_storage = { storage with ledger = new_ledger; reverse_ledger = new_reverse_ledger } in
-     ([] : operation list), new_storage
-
-  | Balance_of p ->
-     let op = get_balance (p, storage.ledger) in
-     [op], storage
-
-  | Update_operators updates ->
-     let new_ops = fa2_update_operators (updates, storage.operators) in
-     let new_storage = { storage with operators = new_ops; } in
-     ([] : operation list), new_storage
-
-  | Mint p ->
-     ([]: operation list), mint (p, storage)
-
-  | Burn p ->
-     ([]: operation list), burn (p, storage)
-
-(* type added_entry_points =
- *   | Addedlol of nat *)
-
-
-(* type added_nft_token_storage = {
- *     ledger : ledger;
- *     operators : operator_storage;
- *     reverse_ledger: reverse_ledger;
- *     metadata: (string, bytes) big_map;
- *     token_metadata: token_metadata_storage;
- *     next_token_id: token_id;
- *     admin: address;
- *   } *)
-
-(* type added_nft_token_storage = {
- *     operators : operator_storage;
- *     token_metadata: token_metadata_storage;
- *     next_token_id: token_id;
- *     admin: address;
- *   }
- * 
- * let main (param, storage : added_entry_points * added_nft_token_storage)
- *     : (operation  list) * added_nft_token_storage =
- *   match param with
- *   | Addedlol _ ->
- *      ([]: operation list), storage *)
