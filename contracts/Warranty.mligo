@@ -84,23 +84,11 @@ One of the options to make token metadata discoverable is to declare
  *)
 type token_metadata_storage = (token_id, token_metadata) big_map
 
-(**
-Optional type to define view entry point to expose token_metadata on chain or
-as an external view
- *)
-type token_metadata_params = 
-  [@layout:comb]
-    {
-      token_ids : token_id list;
-      handler : (token_metadata list) -> unit;
-    }
-
 type mint_params =
   [@layout:comb]
     {
       (* Pertinent entities *)
       owner: address;
-      issuer: address;
 
       (* Warranty details *)
       serial_number: string;
@@ -136,43 +124,6 @@ type fa2_entry_points =
  *)
 type contract_metadata = (string, bytes) big_map
 
-(* FA2 hooks interface *)
-
-type transfer_destination_descriptor =
-  [@layout:comb]
-    {
-      to_ : address option;
-      token_id : token_id;
-      amount : nat;
-    }
-
-type transfer_descriptor =
-  [@layout:comb]
-    {
-      from_ : address option;
-      txs : transfer_destination_descriptor list
-    }
-
-type transfer_descriptor_params =
-  [@layout:comb]
-    {
-      batch : transfer_descriptor list;
-      operator : address;
-    }
-
-(*
-Entrypoints for sender/receiver hooks
-
-type fa2_token_receiver =
-  ...
-  | Tokens_received of transfer_descriptor_param
-
-type fa2_token_sender =
-  ...
-  | Tokens_sent of transfer_descriptor_param
- *)
-
-
 (** One of the specified `token_id`s is not defined within the FA2 contract *)
 let fa2_token_undefined = "FA2_TOKEN_UNDEFINED" 
 (** 
@@ -192,35 +143,7 @@ A transfer failed because `operator_transfer_policy == Owner_or_operator_transfe
 and it is initiated neither by the token owner nor a permitted operator
  *)
 let fa2_not_operator = "FA2_NOT_OPERATOR"
-(** 
-`update_operators` entrypoint is invoked and `operator_transfer_policy` is
-`No_transfer` or `Owner_transfer`
- *)
-let fa2_operators_not_supported = "FA2_OPERATORS_UNSUPPORTED"
-(**
-Receiver hook is invoked and failed. This error MUST be raised by the hook
-implementation
- *)
-let fa2_receiver_hook_failed = "FA2_RECEIVER_HOOK_FAILED"
-(**
-Sender hook is invoked and failed. This error MUST be raised by the hook
-implementation
- *)
-let fa2_sender_hook_failed = "FA2_SENDER_HOOK_FAILED"
-(**
-Receiver hook is required by the permission behavior, but is not implemented by
-a receiver contract
- *)
-let fa2_receiver_hook_undefined = "FA2_RECEIVER_HOOK_UNDEFINED"
-(**
-Sender hook is required by the permission behavior, but is not implemented by
-a sender contract
- *)
-let fa2_sender_hook_undefined = "FA2_SENDER_HOOK_UNDEFINED"
-(** 
-Reference implementation of the FA2 operator storage, config API and 
-helper functions 
- *)
+
 
 (**
 The transfer of an warranty NFT is not permitted according to its defined mechanics
@@ -237,28 +160,6 @@ type operator_transfer_policy =
 | No_transfer
 | Owner_transfer
 | Owner_or_operator_transfer
-
-type owner_hook_policy =
-  [@layout:comb]
-| Owner_no_hook
-| Optional_owner_hook
-| Required_owner_hook
-
-type custom_permission_policy =
-  [@layout:comb]
-    {
-      tag : string;
-      config_api: address option;
-    }
-
-type permissions_descriptor =
-  [@layout:comb]
-    {
-      operator : operator_transfer_policy;
-      receiver : owner_hook_policy;
-      sender : owner_hook_policy;
-      custom : custom_permission_policy option;
-    }
 
 (** 
 (owner, operator, token_id) -> unit
@@ -309,28 +210,6 @@ let fa2_update_operators (updates, storage
 type operator_validator = (address * address * token_id * operator_storage)-> unit
 
 (**
-Create an operator validator function based on provided operator policy.
-@param tx_policy operator_transfer_policy defining the constrains on who can transfer.
-@return (owner, operator, token_id, ops_storage) -> unit
- *)
-let make_operator_validator (tx_policy : operator_transfer_policy) : operator_validator =
-  let can_owner_tx, can_operator_tx = match tx_policy with
-    | No_transfer -> (failwith fa2_tx_denied : bool * bool)
-    | Owner_transfer -> true, false
-    | Owner_or_operator_transfer -> true, true
-  in
-  (fun (owner, operator, token_id, ops_storage 
-                                   : address * address * token_id * operator_storage) ->
-    if can_owner_tx && owner = operator
-    then unit (* transfer by the owner *)
-    else if not can_operator_tx
-    then failwith fa2_not_owner (* an operator transfer not permitted by the policy *)
-    else if Big_map.mem  (owner, (operator, token_id)) ops_storage
-    then unit (* the operator is permitted for the token_id *)
-    else failwith fa2_not_operator (* the operator is not permitted for the token_id *)
-  )
-
-(**
 Default implementation of the operator validation function.
 The default implicit `operator_transfer_policy` value is `Owner_or_operator_transfer`
  *)
@@ -343,19 +222,6 @@ let default_operator_validator : operator_validator =
     then unit (* the operator is permitted for the token_id *)
     else failwith fa2_not_operator (* the operator is not permitted for the token_id *)
   )
-
-(** 
-Validate operators for all transfers in the batch at once
-@param tx_policy operator_transfer_policy defining the constrains on who can transfer.
- *)
-let validate_operator (tx_policy, txs, ops_storage 
-                                       : operator_transfer_policy * (transfer list) * operator_storage) : unit =
-  let validator = make_operator_validator tx_policy in
-  List.iter (fun (tx : transfer) -> 
-      List.iter (fun (dst: transfer_destination) ->
-          validator (tx.from_, Tezos.sender, dst.token_id ,ops_storage)
-        ) tx.txs
-    ) txs
 
 (**
 Checks whether a warranty NFT has not expired.
@@ -383,12 +249,6 @@ type token_def =
 
 type nft_meta = (token_def, token_metadata) big_map
 
-type token_storage = {
-    token_defs : token_def set;
-    next_token_id : token_id;
-    metadata : nft_meta;
-  }
-
 type ledger = (token_id, address) big_map
 type reverse_ledger = (address, token_id list) big_map
 
@@ -396,7 +256,7 @@ type nft_token_storage = {
     ledger : ledger;
     operators : operator_storage;
     reverse_ledger : reverse_ledger;
-    metadata : (string, bytes) big_map;
+    metadata : contract_metadata;
     token_metadata : token_metadata_storage;
     next_token_id : token_id;
     admin : simple_admin_storage;
@@ -431,17 +291,16 @@ permissions or constraints are violated.
 @param validate_op function that validates of the tokens from the particular owner can be transferred. 
  *)
 let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger, token_metadata
-                                                     : (transfer list) * operator_validator * operator_storage * ledger * reverse_ledger * token_metadata_storage) : ledger * reverse_ledger * token_metadata_storage =
+                                                                     : (transfer list) * operator_validator * operator_storage * ledger * reverse_ledger * token_metadata_storage) : ledger * reverse_ledger * token_metadata_storage =
   (* Process individual transfer *)
   let make_transfer = (fun ((l, rv_l, tm), tx : (ledger * reverse_ledger * token_metadata_storage) * transfer) ->
-      List.fold 
-        (fun ((ll, rv_ll, tm_l), dst : (ledger * reverse_ledger * token_metadata_storage) * transfer_destination) ->
+      List.fold (fun ((l, rv_l, tm), dst : (ledger * reverse_ledger * token_metadata_storage) * transfer_destination) ->
           if dst.amount = 0n
-          then ll, rv_ll, tm_l
+          then l, rv_l, tm
           else if dst.amount <> 1n
           then (failwith fa2_insufficient_balance : ledger * reverse_ledger * token_metadata_storage)
           else
-            let owner = Big_map.find_opt dst.token_id ll in
+            let owner = Big_map.find_opt dst.token_id l in
             match owner with
             | None -> (failwith fa2_token_undefined : ledger * reverse_ledger * token_metadata_storage)
             | Some o -> 
@@ -450,10 +309,10 @@ let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger, token_metad
                else 
                  begin
                    let _u = validate_op (o, Tezos.sender, dst.token_id, ops_storage) in
-                   let new_ll = Big_map.update dst.token_id (Some dst.to_) ll in
+                   let new_l = Big_map.update dst.token_id (Some dst.to_) l in
                    (* Removes token id from sender *)
-                   let new_rv_ll = 
-                     match Big_map.find_opt tx.from_ rv_ll with
+                   let new_rv_l = 
+                     match Big_map.find_opt tx.from_ rv_l with
                      | None -> (failwith fa2_insufficient_balance : reverse_ledger)
                      | Some tk_id_l -> 
                         Big_map.update 
@@ -464,16 +323,16 @@ let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger, token_metad
                                      then new_list
                                      else token_id :: new_list
                                    ) tk_id_l ([]: token_id list))) 
-                          rv_ll 
+                          rv_l 
                    in
                    (* Adds token id to recipient *)
-                   let updated_rv_ll = 
-                     match Big_map.find_opt dst.to_ new_rv_ll with
-                     | None -> Big_map.add dst.to_ [dst.token_id] new_rv_ll
-                     | Some tk_id_l -> Big_map.update dst.to_ (Some (dst.token_id :: tk_id_l)) new_rv_ll in
+                   let updated_rv_l = 
+                     match Big_map.find_opt dst.to_ new_rv_l with
+                     | None -> Big_map.add dst.to_ [dst.token_id] new_rv_l
+                     | Some tk_id_l -> Big_map.update dst.to_ (Some (dst.token_id :: tk_id_l)) new_rv_l in
                    (* Advance the warranty NFT according to its defined mechanics *)
                    let new_token_metadata = 
-                     match Big_map.find_opt dst.token_id tm_l with
+                     match Big_map.find_opt dst.token_id tm with
                      | None -> (failwith fa2_insufficient_balance : token_metadata_storage)
                      | Some tk_meta ->
                         let tk_info = tk_meta.token_info in
@@ -485,48 +344,26 @@ let transfer (txs, validate_op, ops_storage, ledger, reverse_ledger, token_metad
                         then (failwith err_transfer_not_permitted : token_metadata_storage)
                         else Big_map.update dst.token_id 
                                (Some {tk_meta with token_info.num_transfers_allowed = abs (new_num_transfers) })
-                               tm_l in
-                   new_ll, updated_rv_ll, new_token_metadata
+                               tm in
+                   new_l, updated_rv_l, new_token_metadata
                  end
         ) tx.txs (l, rv_l, tm)
-    )
-  in 
+    ) in 
   let (l, rv_l, new_token_metadata) = List.fold make_transfer txs (ledger, reverse_ledger, token_metadata) in 
   (l, rv_l, new_token_metadata)
-
-(** Finds a definition of the token type (token_id range) associated with the provided token id *)
-let find_token_def (tid, token_defs : token_id * (token_def set)) : token_def =
-  let tdef = Set.fold (fun (res, d : (token_def option) * token_def) ->
-                 match res with
-                 | Some _ -> res
-                 | None ->
-                    if tid >= d.from_ && tid < d.to_
-                    then  Some d
-                    else (None : token_def option)
-               ) token_defs (None : token_def option)
-  in
-  match tdef with
-  | None -> (failwith fa2_token_undefined : token_def)
-  | Some d -> d
-
-let get_metadata (tokens, meta : (token_id list) * token_storage )
-    : token_metadata list =
-  List.map (fun (tid: token_id) ->
-      let tdef = find_token_def (tid, meta.token_defs) in
-      let meta = Big_map.find_opt tdef meta.metadata in
-      match meta with
-      | Some m -> { m with token_id = tid; }
-      | None -> (failwith "NO_DATA" : token_metadata)
-    ) tokens
 
 let mint (p, s: mint_params * nft_token_storage): nft_token_storage =
   (* Only the current admin may mint warranty NFTs *)
   let _u = fail_if_not_admin (s.admin) in
   let token_id = s.next_token_id in
-  let token_info = { owner = p.owner; issuer = p.issuer; serial_number = p.serial_number;
-                     issue_time = p.issue_time; warranty_duration = p.warranty_duration;
+  let token_info = { owner = p.owner; 
+                     issuer = Tezos.sender; 
+                     serial_number = p.serial_number;
+                     issue_time = p.issue_time; 
+                     warranty_duration = p.warranty_duration;
                      link_to_warranty_conditions = p.link_to_warranty_conditions;
-                     num_transfers_allowed = p.num_transfers_allowed; } in
+                     num_transfers_allowed = p.num_transfers_allowed; 
+                   } in
   (* Updates the ledger *)
   let new_ledger = Big_map.add token_id p.owner s.ledger in
   (* Updates the reverse ledger *)
@@ -560,9 +397,9 @@ let confirm_new_admin (s : simple_admin_storage) : simple_admin_storage =
     else (failwith "NOT_A_PENDING_ADMIN" : simple_admin_storage)
 
 (* TODO: 
-   - Add simple admin functionality
-   - Clean up unused types and variables. Try to split code into separate files.
+   - Try to split code into separate files.
    - Separate asset functionality from management functionality in `main`
+   - Make all failwith errors into constant variables
  *)
 let main (param, storage : fa2_entry_points * nft_token_storage)
     : (operation  list) * nft_token_storage =
