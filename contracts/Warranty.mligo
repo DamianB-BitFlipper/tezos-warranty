@@ -112,11 +112,22 @@ type mint_params =
       num_transfers_allowed: nat;
     }
 
+type simple_admin_storage = 
+    [@layout:comb]
+      {
+        admin : address;
+        pending_admin : address option;
+      }
+
 type fa2_entry_points =
+  (* Asset operations *)
   | Transfer of transfer list
   | Balance_of of balance_of_params
   | Update_operators of update_operator list
   | Mint of mint_params
+  (* Admin operations *)
+  | Set_admin of address
+  | Confirm_admin of unit
 
 (* 
  TZIP-16 contract metadata storage field type. 
@@ -354,6 +365,14 @@ let is_not_expired (token_info : token_info) : bool =
   let still_valid = Tezos.now < token_info.issue_time + (token_info.warranty_duration * one_day) in
   still_valid
 
+(**
+Fails if the sender of the transaction is not the current admin
+*)
+let fail_if_not_admin (a : simple_admin_storage) : unit =
+  if Tezos.sender <> a.admin
+  then failwith "NOT_AN_ADMIN"
+  else unit
+
 (* range of nft tokens *)
 type token_def =
   [@layout:comb]
@@ -376,11 +395,11 @@ type reverse_ledger = (address, token_id list) big_map
 type nft_token_storage = {
     ledger : ledger;
     operators : operator_storage;
-    reverse_ledger: reverse_ledger;
-    metadata: (string, bytes) big_map;
-    token_metadata: token_metadata_storage;
-    next_token_id: token_id;
-    admin: address;
+    reverse_ledger : reverse_ledger;
+    metadata : (string, bytes) big_map;
+    token_metadata : token_metadata_storage;
+    next_token_id : token_id;
+    admin : simple_admin_storage;
   }
 
 (** 
@@ -501,6 +520,8 @@ let get_metadata (tokens, meta : (token_id list) * token_storage )
     ) tokens
 
 let mint (p, s: mint_params * nft_token_storage): nft_token_storage =
+  (* Only the current admin may mint warranty NFTs *)
+  let _u = fail_if_not_admin (s.admin) in
   let token_id = s.next_token_id in
   let token_info = { owner = p.owner; issuer = p.issuer; serial_number = p.serial_number;
                      issue_time = p.issue_time; warranty_duration = p.warranty_duration;
@@ -524,10 +545,24 @@ let mint (p, s: mint_params * nft_token_storage): nft_token_storage =
     next_token_id = token_id + 1n;
   }
 
+let set_admin (new_admin, s : address * simple_admin_storage) : simple_admin_storage =
+  { s with pending_admin = Some new_admin; }
+
+let confirm_new_admin (s : simple_admin_storage) : simple_admin_storage =
+  match s.pending_admin with
+  | None -> (failwith "NO_PENDING_ADMIN" : simple_admin_storage)
+  | Some pending ->
+    if Tezos.sender = pending
+    then {s with 
+      pending_admin = (None : address option);
+      admin = Tezos.sender;
+    }
+    else (failwith "NOT_A_PENDING_ADMIN" : simple_admin_storage)
 
 (* TODO: 
    - Add simple admin functionality
    - Clean up unused types and variables. Try to split code into separate files.
+   - Separate asset functionality from management functionality in `main`
  *)
 let main (param, storage : fa2_entry_points * nft_token_storage)
     : (operation  list) * nft_token_storage =
@@ -551,6 +586,14 @@ let main (param, storage : fa2_entry_points * nft_token_storage)
   | Mint p ->
      ([]: operation list), mint (p, storage)
 
+  | Set_admin addr ->
+     let new_admin = set_admin (addr, storage.admin) in
+     ([]: operation list), { storage with admin = new_admin }
+
+  | Confirm_admin ->
+     let confirmed_admin = confirm_new_admin (storage.admin) in
+     ([]: operation list), { storage with admin = confirmed_admin }
+
 (* let store : nft_token_storage = {
  *     ledger = (Big_map.empty: (token_id, address) big_map);
  *     operators = (Big_map.empty: ((address * (address * token_id)), unit) big_map);
@@ -561,6 +604,6 @@ let main (param, storage : fa2_entry_points * nft_token_storage)
  *                  ];
  *     token_metadata = (Big_map.empty: (token_id, token_metadata) big_map);
  *     next_token_id = 0n;
- *     admin = ("tz1Me1MGhK7taay748h4gPnX2cXvbgL6xsYL": address);
+ *     admin = { admin = ("tz1Me1MGhK7taay748h4gPnX2cXvbgL6xsYL": address); pending_admin = (None : address option)};
  *   } *)
 
