@@ -4,10 +4,9 @@ LIGO=/home/damian/Documents/Educational/personal/tezos/ligo
 CONTRACT=/home/damian/Documents/Educational/personal/tezos/warranty/contracts/Warranty.mligo
 
 # Call the `ligo dry-run` command
-$LIGO dry-run $CONTRACT main 'Mint 
+$LIGO dry-run --sender='tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb' $CONTRACT main 'Mint 
 {
         owner = ("tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6" : address);
-        issuer = ("tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb" : address); 
 
         serial_number = "69420-LOL";
         issue_time = Tezos.now;
@@ -27,6 +26,6 @@ $LIGO dry-run $CONTRACT main 'Mint
                  ];
         token_metadata = (Big_map.empty: (token_id, token_metadata) big_map);
         next_token_id = 0n;
-        admin = ("tz1Me1MGhK7taay748h4gPnX2cXvbgL6xsYL": address);
+        admin = { admin = ("tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb": address); pending_admin = (None : address option)};
 }
 '
