@@ -1,0 +1,15 @@
+.headerTitle:after {
+  content: ' ';
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 100px;
+  border-radius: 100px;
+  background: #2c7df7;
+}
+
+.headerTitle:after {
+  bottom: -2rem;
+  height: 7px;
+}

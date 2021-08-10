@@ -1,0 +1,19 @@
+@font-face {
+  font-family: 'calculator';
+  src: local('calculator'), url('./calculator.ttf') format('truetype');
+  font-weight: normal;
+}
+
+.resultView {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.11);
+  color: #f4ab41;
+  padding: 1em;
+  box-sizing: border-box;
+  border-radius: 15px;
+  font-family: calculator;
+  font-size: 25px;
+  line-height: 29px;
+}

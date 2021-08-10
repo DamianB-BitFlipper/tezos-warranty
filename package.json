@@ -5,7 +5,9 @@
   "dependencies": {
     "@taquito/taquito": "^10.0.0"
   },
-  "scripts": {},
+  "scripts": {
+      "web:dev": "cd web && yarn dev"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/truffle-box/tezos-bare-box.git"

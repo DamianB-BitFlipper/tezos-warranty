@@ -1,0 +1,33 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier"
+  ],
+  "plugins": ["react", "react-hooks"],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 11,
+    "sourceType": "module"
+  },
+  "overrides": [
+    {
+      "files": "pages/api",
+      "extends": "eslint:recommended",
+      "rules": { "no-console": "warn" }
+    }
+  ],
+  "env": { "browser": true, "node": true, "shared-node-browser": true },
+  "rules": {
+    "react/prop-types": [2, { "ignore": ["children"] }],
+    "react/react-in-jsx-scope": [0]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+.banner {
+  background: url(/banner.svg) center center no-repeat;
+  background-size: cover;
+}
+
+@media screen and (max-width: 567px) {
+  .banner {
+    background-position: left center;
+  }
+}
