@@ -5,6 +5,8 @@ import clsx from 'clsx';
 import styles from './Warranty.module.css';
 import { openTab } from './Warranty.module.js';
 import Layout from 'components/Layout';
+import AdminPanel from './AdminPanel';
+import UserPanel from './UserPanel';
 
 export default function Warranty({ contractAddress, userAddress }) {
     const { connect, mint, isLoading, currentStorage } = useWarrantyInput();
@@ -23,7 +25,8 @@ export default function Warranty({ contractAddress, userAddress }) {
                 setIsAdmin(true);
             }
 
-            // Form the user's NFTs
+            // Format the user's NFTs
+            setUserNFTs([]);
             const nfts = await currentStorage.reverse_ledger.get(userAddress); 
             nfts.forEach(async (nft) => {
                 const metadata = await currentStorage.token_metadata.get(nft.toString());
@@ -53,15 +56,17 @@ export default function Warranty({ contractAddress, userAddress }) {
                 <button className={ styles.tablinks } onClick={ (e) => openTab(e, "user-panel") }>User Panel</button>
               </div>
 
-              <div id="admin-panel" className={ styles.tabcontent }>
-                <h3>Admin Panel</h3>
-                <button onClick={ (e) => mint() }>Mint NFT</button>
-              </div>
+              <AdminPanel
+                id='admin-panel'
+                mint={ mint }
+              >
+              </AdminPanel>
 
-              <div id="user-panel" className={ styles.tabcontent }>
-                <h3>User Panel</h3>
-                <p>{ userNFTs.toString() }</p> 
-              </div>
+              <UserPanel
+                id='user-panel'
+                userNFTs={ userNFTs.toString() }
+              >
+              </UserPanel>
 
             </div>
           </div>

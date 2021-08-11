@@ -28,18 +28,6 @@ export function useWarrantyInput() {
         setIsLoading(false);
     }
 
-    async function submit(firstInt, secondInt, sign) {
-        setIsLoading(true);
-        try {
-            const op = await operate(firstInt, secondInt, sign);
-            await op.confirmation();
-            await getStorage();
-        } catch (error) {
-            window.alert(error.message);
-            setIsLoading(false);
-        }
-    }
-
     async function getStorage() {
         setIsLoading(true);
         const storage = await contractInstance.storage();
@@ -60,43 +48,22 @@ export function useWarrantyInput() {
         }
     }
 
-    async function operate(firstInt, secondInt, sign) {
-        switch (sign) {
-        case signs.PLUS:
-            return await action('add', firstInt, secondInt);
-        case signs.MINUS:
-            return action('subtract', firstInt, secondInt);
-        case signs.MUL:
-            return action('multiply', firstInt, secondInt);
-        case signs.DIV:
-            return action('divide', firstInt, secondInt);
-        default:
-            return alert(`not supported ${sign}`);
-        }
-    }
-
-    async function action(actionName, firstInt, secondInt) {
-        return await contractInstance.methods[actionName](
-            firstInt,
-            secondInt
-        ).send();
-    }
-
-    async function mint() {
+    async function mint(owner, 
+                        serial_number, 
+                        warranty_duration, 
+                        warranty_conditions, 
+                        num_transfers_allowed) {
         setIsLoading(true);
         try {
             const op = await contractInstance.methods['mint'](
-                'tz1Zgd3LHuryw6rBzsQKnBMVqu99KzWankj8',
-                'Serial-69',
-                365,
-                '',
-                1
+                owner, serial_number, warranty_duration,
+                warranty_conditions, num_transfers_allowed
             ).send();
             await op.confirmation();
             await getStorage();
         } catch (error) {
             window.alert(error.message);
-            setIsLoading(false);
         }
+        setIsLoading(false);
     }
 }
