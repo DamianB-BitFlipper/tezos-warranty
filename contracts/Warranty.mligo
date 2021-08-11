@@ -92,7 +92,6 @@ type mint_params =
 
       (* Warranty details *)
       serial_number: string;
-      issue_time: timestamp;
       warranty_duration: nat;   (* In days *)
       link_to_warranty_conditions: bytes;
 
@@ -365,7 +364,7 @@ let mint (p, s: mint_params * nft_token_storage): nft_token_storage =
   let token_info = { owner = p.owner; 
                      issuer = Tezos.sender; 
                      serial_number = p.serial_number;
-                     issue_time = p.issue_time; 
+                     issue_time = Tezos.now;
                      warranty_duration = p.warranty_duration;
                      link_to_warranty_conditions = p.link_to_warranty_conditions;
                      num_transfers_allowed = p.num_transfers_allowed; 

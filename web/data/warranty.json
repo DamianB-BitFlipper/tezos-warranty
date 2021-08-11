@@ -4,7 +4,7 @@
     "description": "The warranty contract manages NFTs that represent warranty ownership and validity.",
     "sourceUrl": "https://github.com/DamianB-BitFlipper/tezos-warranty",
     "contract": {
-        "address": "KT1FVHq8utJSBq5UEYjiJVtvWacYYcRqgc5X",
+        "address": "KT1WCn47W67b4zbxizngWdTrcZ2DK4J2xst9",
         "lang": "Camel"
     }
 }

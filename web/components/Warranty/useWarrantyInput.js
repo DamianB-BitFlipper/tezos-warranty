@@ -1,22 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Tezos } from 'hooks/use-beacon';
 
 export function useWarrantyInput() {
     const [contractInstance, setContractInstance] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentStorage, setCurrentStorage] = useState(false);
+    const [currentStorage, setCurrentStorage] = useState(null);
+
+    useEffect(() => { 
+        // Once the `contractInstance` is set, load the current storage
+        if (contractInstance != null) {
+            getStorage();
+        }
+    }, [contractInstance]);
 
     return {
-        submit,
-        isLoading,
         connect,
+        mint,
+        isLoading,
         currentStorage,
     };
 
     async function connect(contractAddress) {
+        setIsLoading(true);
         const contract = await connectContract(contractAddress);
         setContractInstance(contract);
+        setIsLoading(false);
     }
 
     async function submit(firstInt, secondInt, sign) {
@@ -32,11 +41,6 @@ export function useWarrantyInput() {
     }
 
     async function getStorage() {
-        if (contractInstance === null) {
-            console.log("IS NULL");
-            return;
-        }
-
         setIsLoading(true);
         const storage = await contractInstance.storage();
         setCurrentStorage(storage);
@@ -52,6 +56,7 @@ export function useWarrantyInput() {
             return contract;
         } catch (error) {
             window.alert(error.message);
+            return null;
         }
     }
 
@@ -75,5 +80,23 @@ export function useWarrantyInput() {
             firstInt,
             secondInt
         ).send();
+    }
+
+    async function mint() {
+        setIsLoading(true);
+        try {
+            const op = await contractInstance.methods['mint'](
+                'tz1Zgd3LHuryw6rBzsQKnBMVqu99KzWankj8',
+                'Serial-69',
+                365,
+                '',
+                1
+            ).send();
+            await op.confirmation();
+            await getStorage();
+        } catch (error) {
+            window.alert(error.message);
+            setIsLoading(false);
+        }
     }
 }
