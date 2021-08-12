@@ -26,13 +26,14 @@ export default function Warranty({ contractAddress, userAddress }) {
             }
 
             // Format the user's NFTs
-            setUserNFTs([]);
+            var token_infos = [];
             const nfts = await currentStorage.reverse_ledger.get(userAddress); 
-            nfts.forEach(async (nft) => {
+            for (const nft of nfts) {
                 const metadata = await currentStorage.token_metadata.get(nft.toString());
-                setUserNFTs(prev => [...prev, metadata.token_info.serial_number]);
-            });
-
+                // Push a copy of the `token_info`
+                token_infos.push(metadata.token_info);
+            }
+            setUserNFTs(token_infos);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentStorage]);
@@ -64,7 +65,7 @@ export default function Warranty({ contractAddress, userAddress }) {
 
               <UserPanel
                 id='user-panel'
-                userNFTs={ userNFTs.toString() }
+                userNFTs={ userNFTs }
               >
               </UserPanel>
 
