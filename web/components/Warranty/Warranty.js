@@ -9,7 +9,7 @@ import AdminPanel from './AdminPanel';
 import UserPanel from './UserPanel';
 
 export default function Warranty({ contractAddress, userAddress }) {
-    const { connect, mint, isLoading, currentStorage } = useWarrantyInput();
+    const { connect, mint, transfer, isLoading, currentStorage } = useWarrantyInput();
     const [isAdmin, setIsAdmin] = useState(false);
     const [userNFTs, setUserNFTs] = useState([]);
 
@@ -31,7 +31,7 @@ export default function Warranty({ contractAddress, userAddress }) {
             for (const nft of nfts) {
                 const metadata = await currentStorage.token_metadata.get(nft.toString());
                 // Push a copy of the `token_info`
-                token_infos.push(metadata.token_info);
+                token_infos.push({...metadata.token_info, token_id: nft});
             }
             setUserNFTs(token_infos);
         }
@@ -49,7 +49,6 @@ export default function Warranty({ contractAddress, userAddress }) {
           contractAddress={contractAddress}
           title="Warranty"
         >
-
           <div className={ styles.wrapper }>
             <div className={ clsx(styles.horizontalContainer, styles.warrantyApp) }>
               <div className={ styles.tab }>
@@ -65,7 +64,9 @@ export default function Warranty({ contractAddress, userAddress }) {
 
               <UserPanel
                 id='user-panel'
+                userAddress={ userAddress }
                 userNFTs={ userNFTs }
+                transfer={ transfer }
               >
               </UserPanel>
 

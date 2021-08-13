@@ -4,7 +4,7 @@ export function InputTextField({ placeholder, value, onChange, disabled }) {
         <input
           className="input-box"
           type="text"
-          value={ value || '' }
+          value={ value }
           onInput={ (e) => onChange(e.target.value) }
           placeholder={ placeholder }
           disabled={ disabled }
@@ -24,7 +24,7 @@ export function InputNumberField({ placeholder, value, onChange, disabled }) {
         <input
           className="input-box"
           type="number"
-          value={ value || '' }
+          value={ value }
           onInput={ (e) => onChange(e.target.value) }
           placeholder={ placeholder }
           disabled={ disabled }
@@ -32,7 +32,7 @@ export function InputNumberField({ placeholder, value, onChange, disabled }) {
     );
 }
 
-InputTextField.propTypes = {
+InputNumberField.propTypes = {
     placeholder: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
     disabled: PropTypes.bool.isRequired,

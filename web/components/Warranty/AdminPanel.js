@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { InputTextField, InputNumberField } from './InputField';
 import styles from './Warranty.module.css';
 
-import {hexEncode} from './utils.js';
+import { hexEncode } from './utils.js';
 
 export default function AdminPanel({ id, mint }) {
     // The mint input parameters
@@ -14,6 +14,7 @@ export default function AdminPanel({ id, mint }) {
     const [warrantyConditions, setWarrantyConditions] = useState('');
     const [numTransfersAllowed, setNumTransfersAllowed] = useState(0);
 
+    // TODO: Make all of the `disabled` fields work
     return (
         <div id={ id } className={ styles.tabcontent }>
           <h3>Admin Panel</h3>
