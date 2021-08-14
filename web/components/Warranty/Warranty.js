@@ -51,7 +51,7 @@ export default function Warranty({ contractAddress, userAddress }) {
         >
           <div className={ styles.wrapper }>
             <div className={ clsx(styles.horizontalContainer, styles.warrantyApp) }>
-              <div className={ styles.tab }>
+              <div className={ clsx(styles.verticalContainer, styles.tab) }>
                 { adminButton }
                 <button className={ styles.tablinks } onClick={ (e) => openTab(e, "user-panel") }>User Panel</button>
               </div>

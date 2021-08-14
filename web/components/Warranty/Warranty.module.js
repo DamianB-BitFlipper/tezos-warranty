@@ -9,8 +9,8 @@ export function openTab(e, tabName) {
     }
     tablinks = document.getElementsByClassName(styles.tablinks);
     for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        tablinks[i].className = tablinks[i].className.replace(" " + styles.active, "");
     }
     document.getElementById(tabName).style.display = "block";
-    e.currentTarget.className += " active";
+    e.currentTarget.className += (" " + styles.active);
 }

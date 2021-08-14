@@ -10,3 +10,15 @@ export function hexEncode(s) {
 
     return result
 }
+
+// https://stackoverflow.com/questions/21647928/javascript-unicode-string-to-hex
+export function hexDecode(s) {
+    var j;
+    var hexes = s.match(/.{1,4}/g) || [];
+    var back = "";
+    for(j = 0; j < hexes.length; j++) {
+        back += String.fromCharCode(parseInt(hexes[j], 16));
+    }
+
+    return back;
+}

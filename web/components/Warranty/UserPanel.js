@@ -4,15 +4,17 @@ import { useState } from 'react';
 import { InputTextField } from './InputField';
 import styles from './Warranty.module.css';
 
+import { hexDecode } from './utils.js';
+
 function TableHeader() {
     return (
         <tr>
           <th>Select</th>
           <th>Issuer</th>
-          <th>Serial Number</th>
+          <th className={ styles.smallCol }>Serial Number</th>
           <th>Issue Time</th>
           <th>Warranty Duration</th>
-          <th>Warranty Conditions</th>
+          <th className={ styles.smallCol }>Warranty Conditions</th>
           <th>Transfers Remaining</th>
         </tr>
     );
@@ -21,15 +23,15 @@ function TableHeader() {
 function TableRow(id, nft) {
     return (
         <tr key={ id }>
-          <td>
+          <td className={ styles.textCentered }>
             <input name="nft" type="checkbox" value={ id }/>
           </td>
-          <td>{nft.issuer}</td>
-          <td>{nft.serial_number}</td>
-          <td>{nft.issue_time}</td>
-          <td>{nft.warranty_duration.toNumber()}</td>
-          <td>{nft.link_to_warranty_conditions}</td>
-          <td>{nft.num_transfers_allowed.toNumber()}</td>
+          <td>{ nft.issuer }</td>
+          <td className={ styles.smallCol }>{ nft.serial_number }</td>
+          <td>{ nft.issue_time }</td>
+          <td>{ nft.warranty_duration.toNumber() }</td>
+          <td className={ styles.smallCol }>{ hexDecode(nft.link_to_warranty_conditions) }</td>
+          <td>{ nft.num_transfers_allowed.toNumber() }</td>
         </tr>
     );
 }
@@ -54,23 +56,23 @@ export default function UserPanel({
 
     return (
         <div id={ id } className={ styles.tabcontent }>
-          <h3>User Panel</h3>
-
           <table>
             <thead>    
               <TableHeader/>
               { userNFTs.map((nft, i) => TableRow(i, nft)) }
             </thead>
           </table>
-          <InputTextField
-            placeholder="Input recipient address"
-            value={ recipient }
-            disabled={ false }
-            onChange={ setRecipient }
-          />
-          <button onClick={ (_e) => transfer(userAddress, 
-                                             recipient, 
-                                             getSelectedNFT_tokenIDs()) }>Transfer</button>
+          <div className={ styles.opForm }>
+            <InputTextField
+              label="Recipient Address"
+              value={ recipient }
+              disabled={ false }
+              onChange={ setRecipient }
+            />
+          </div>
+            <button onClick={ (_e) => transfer(userAddress, 
+                                               recipient, 
+                                               getSelectedNFT_tokenIDs()) }>Transfer</button>
         </div>
     );
 }

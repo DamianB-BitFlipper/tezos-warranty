@@ -4,8 +4,14 @@
   font-weight: normal;
 }
 
+.warrantyApp {
+    width: 100vw;
+    height: 100vh;
+}
+
 .warrantyApp button {
   padding: 0.9rem 1.5rem;
+  width: 9rem;
   border-radius: 100px;
   background: #3498db;
   color: #fff;
@@ -26,6 +32,52 @@
   border: none;
 }
 
+.inputBox {
+  width: 18em;
+}
+
+/* 
+   Tables
+*/
+.warrantyApp table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.warrantyApp td, 
+.warrantyApp th {
+  border: 1px solid #fff;
+  text-align: left;
+  padding: 8px;
+
+  /* Truncate overflowing text */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.warrantyApp td.textCentered {
+  text-align: center;
+}
+
+.warrantyApp td.smallCol, 
+.warrantyApp th.smallCol {
+  max-width: 13em;
+}
+
+/* Alternate the row colors in the table */
+.warrantyApp tr:nth-child(even) {
+  background-color: #ddd;
+}
+
+.warrantyApp tr:nth-child(odd) {
+  background-color: #eee;
+}
+/* 
+   Tables
+*/
+
+
 .wrapper {
   background-image: linear-gradient(90deg, #30526f 0.2%, #2f4773 99.8%);
 }
@@ -34,9 +86,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
   margin: auto;
+}
+
+.verticalContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .innerContainer {
@@ -69,16 +126,23 @@
   justify-content: space-between;
   margin-bottom: 1em;
 }
-.opForm > input {
+.opForm > div > input {
   padding: 1rem 1.5rem;
-  width: 100%;
   font-size: 25px;
   line-height: 29px;
+  margin-bottom: 0.25em;
 }
-.opForm > select {
+.opForm > div > select {
   margin: 0 1em;
   font-family: Helvetica;
 }
+.opForm > div > label {
+  display: inline-block;
+  width: 200px;
+  text-align: right;
+  margin-right: 1em;
+}
+
 .panelContainer > button {
   border-radius: 15px;
   background: rgba(244, 171, 65, 0.85);
@@ -92,20 +156,16 @@
 /* Style the tab */
 .tab {
   overflow: hidden;
-  /* border: 1px solid #ccc; */
-  /* background-color: #f1f1f1; */
 }
 
 /* Style the buttons inside the tab */
 .tab button {
-  background-color: inherit;
-  float: left;
+  padding: 0.9rem 1.5rem;
+  border-radius: 100px;
+  background: #bbb;
+  color: #fff;
   border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-  font-size: 17px;
+  margin: 0.25em;
 }
 
 /* Change background color of buttons on hover */
@@ -115,14 +175,13 @@
 
 /* Create an active/current tablink class */
 .tab button.active {
-  background-color: #ccc;
+  background-color: #dbac35;
 }
 
 /* Style the tab content */
 .tabcontent {
   display: none;
   padding: 6px 12px;
-  /* border: 1px solid #ccc; */
   border-top: none;
 }
 

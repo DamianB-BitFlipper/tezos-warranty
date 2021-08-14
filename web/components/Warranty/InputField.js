@@ -1,39 +1,65 @@
 import PropTypes from 'prop-types';
-export function InputTextField({ placeholder, value, onChange, disabled }) {
-    return (
-        <input
-          className="input-box"
-          type="text"
-          value={ value }
-          onInput={ (e) => onChange(e.target.value) }
-          placeholder={ placeholder }
-          disabled={ disabled }
-        />
-    );
+import styles from './Warranty.module.css';
+
+export function InputTextField({ label, value, onChange, disabled }) {
+    const inputElement = 
+          <input
+            className={ styles.inputBox }
+            type="text"
+            value={ value }
+            onInput={ (e) => onChange(e.target.value) }
+            disabled={ disabled }
+          />;
+
+    var ret;
+    if (label != '') {
+        ret = <div className={ styles.horizontalContainer }>
+                <label>
+                  { label }:
+                </label>
+                { inputElement }
+              </div>;
+    } else {
+        ret = inputElement;
+    }
+
+    return ret;
 }
 
 InputTextField.propTypes = {
-    placeholder: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 };
 
-export function InputNumberField({ placeholder, value, onChange, disabled }) {
-    return (
+export function InputNumberField({ label, value, onChange, disabled }) {
+    const inputElement = 
         <input
-          className="input-box"
+          className={ styles.inputBox }
           type="number"
           value={ value }
           onInput={ (e) => onChange(e.target.value) }
-          placeholder={ placeholder }
           disabled={ disabled }
-        />
-    );
+        />;
+
+    var ret;
+    if (label != '') {
+        ret = <div className={ styles.horizontalContainer }>
+                <label>
+                  { label }:
+                </label>
+                { inputElement }
+              </div>;
+    } else {
+        ret = inputElement;
+    }
+
+    return ret;
 }
 
 InputNumberField.propTypes = {
-    placeholder: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
     value: PropTypes.number.isRequired,
     disabled: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,

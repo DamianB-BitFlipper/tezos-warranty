@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { InputTextField, InputNumberField } from './InputField';
 import styles from './Warranty.module.css';
+import clsx from 'clsx';
 
 import { hexEncode } from './utils.js';
 
@@ -17,34 +18,33 @@ export default function AdminPanel({ id, mint }) {
     // TODO: Make all of the `disabled` fields work
     return (
         <div id={ id } className={ styles.tabcontent }>
-          <h3>Admin Panel</h3>
-          <div className={styles.opForm}>
+          <div className={ clsx(styles.verticalContainer, styles.opForm) }>
             <InputTextField
-              placeholder="Input recipient address"
+              label="Recipient Address"
               value={ owner }
               disabled={ false }
               onChange={ setOwner }
             />
             <InputTextField
-              placeholder="Input serial number"
+              label="Serial Number"
               value={ serialNumber }
               disabled={ false }
               onChange={ setSerialNumber }
             />
             <InputNumberField
-              placeholder="Input warranty duration (days)"
+              label="Warranty Duration (days)"
               value={ warrantyDuration }
               disabled={ false }
               onChange={ setWarrantyDuration }
             />
             <InputTextField
-              placeholder="Input warranty conditions (URL)"
+              label="Warranty Conditions (URL)"
               value={ warrantyConditions }
               disabled={ false }
               onChange={ setWarrantyConditions }
             />
             <InputNumberField
-              placeholder="Input number of transfers allowed"
+              label="Number of Transfers Allowed"
               value={ numTransfersAllowed }
               disabled={ false }
               onChange={ setNumTransfersAllowed }
