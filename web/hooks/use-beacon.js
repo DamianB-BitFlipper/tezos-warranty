@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 
 import { TezosToolkit } from '@taquito/taquito';
 
-//export const RPC_URL = 'https://florence-tezos.giganode.io';
 export const RPC_URL = 'https://rpc.florence.tzstats.com';
 
 const options = {

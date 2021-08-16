@@ -410,10 +410,12 @@ let main (param, storage : fa2_entry_points * nft_token_storage)
     : (operation  list) * nft_token_storage =
   match param with
   | Transfer txs ->
-     let (new_ledger, new_reverse_ledger, _) = transfer 
-                                              (txs, default_operator_validator, storage.operators, 
-                                               storage.ledger, storage.reverse_ledger, storage.token_metadata) in
-     let new_storage = { storage with ledger = new_ledger; reverse_ledger = new_reverse_ledger } in
+     let (new_ledger, new_reverse_ledger, new_token_metadata) = 
+       transfer (txs, default_operator_validator, storage.operators, 
+                 storage.ledger, storage.reverse_ledger, storage.token_metadata) in
+     let new_storage = { storage with ledger = new_ledger; 
+                                      reverse_ledger = new_reverse_ledger;
+                                      token_metadata = new_token_metadata } in
      ([] : operation list), new_storage
 
   | Balance_of p ->

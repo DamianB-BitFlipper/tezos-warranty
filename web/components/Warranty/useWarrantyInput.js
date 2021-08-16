@@ -22,6 +22,19 @@ export function useWarrantyInput() {
         currentStorage,
     };
 
+    async function connectContract(contractAddress) {
+        setIsLoading(true);
+
+        try {
+            const contract = await Tezos.wallet.at(contractAddress);
+            setIsLoading(false);
+            return contract;
+        } catch (error) {
+            window.alert(error.message);
+            return null;
+        }
+    }
+
     async function connect(contractAddress) {
         setIsLoading(true);
         const contract = await connectContract(contractAddress);
@@ -34,19 +47,6 @@ export function useWarrantyInput() {
         const storage = await contractInstance.storage();
         setCurrentStorage(storage);
         setIsLoading(false);
-    }
-
-    async function connectContract(contractAddress) {
-        setIsLoading(true);
-
-        try {
-            const contract = await Tezos.wallet.at(contractAddress);
-            setIsLoading(false);
-            return contract;
-        } catch (error) {
-            window.alert(error.message);
-            return null;
-        }
     }
 
     async function mint(owner, 
