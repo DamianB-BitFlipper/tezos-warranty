@@ -10,14 +10,14 @@ export default function Layout({
   return (
     <>
       <Head>
-        <title>{title} - Tezos Israel</title>
+        <title>{title}</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1"
         />
         <meta
           name="description"
-          content="Learn Tezos smart contract syntax and functionality in a range of coding languages."
+          content="Issue and keep track of warranties in the form of NFTs."
         />
       </Head>
       <Navbar contractAddress={contractAddress} userAddress={userAddress} />

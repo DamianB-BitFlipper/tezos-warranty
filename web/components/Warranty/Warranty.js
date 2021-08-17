@@ -47,7 +47,7 @@ export default function Warranty({ contractAddress, userAddress }) {
         <Layout
           userAddress={userAddress}
           contractAddress={contractAddress}
-          title="Warranty"
+          title="NFT Warranties"
         >
           <div className={ styles.wrapper }>
             <div className={ clsx(styles.horizontalContainer, styles.warrantyApp) }>
