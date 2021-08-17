@@ -39,7 +39,7 @@ export function InputNumberField({ label, value, onChange, disabled }) {
           className={ styles.inputBox }
           type="number"
           value={ value }
-          onInput={ (e) => onChange(e.target.value) }
+          onInput={ (e) => onChange(Number(e.target.value)) }
           disabled={ disabled }
         />;
 
