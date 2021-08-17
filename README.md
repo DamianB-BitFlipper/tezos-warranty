@@ -67,7 +67,7 @@ Go to `localhost:3001` in your web browser. Connect the DApp to a Tezos wallet. 
 
 ## Implementation
 
-This project implements a tokenized warranty NFT with an accompanying web-based DApp. Specifically, it implements FA2 tokens with additional admin functionality. The smart contract code can be found in the file \<LINK TO FILE>. The `web` directory contains the DApp code.
+This project implements a tokenized warranty NFT with an accompanying web-based DApp. Specifically, it implements FA2 tokens with additional admin functionality. The smart contract code can be found in the file [Warranty.mligo](./contracts/Warranty.mligo). The `web` directory contains the DApp code.
 
 ### Smart Contract Entrypoints
 
@@ -134,17 +134,17 @@ The warranty DApp is built using React. The interface with the Tezos blockchain 
 
 When running, the DApp will display a homepage and prompt the user to connect their Tezos wallet.
 
-\<IMAGE OF WALLET CONNECT>
+![Connect Wallet Image](./images/wallet_connect.png)
 
 Once connected, the DApp will recognize if the connected wallet is an administrator or not. If so, it will display two panel options, an "Admin Panel" and a "User Panel". If the connected wallet is not an administrator, only the "User Panel" option will be shown. In the case of the screenshot, the connected wallet is an admin, so both options are displayed.
 
 Under the "Admin Panel", the administrator may enter all of the required information necessary to issue a new warranty NFT to a specified recipient.
 
-\<ADMIN PANEL>
+![Admin Panel Image](./images/admin_panel.png)
 
 Under the "User Panel", a user can view the warranty NFTs under their current possession as well as select any number of them to transfer to a specified recipient. Of course, the selected NFTs must have transfers allowed, otherwise, the operation will fail.
 
-\<USER PANEL>
+![User Panel Image](./images/user_panel.png)
 
 ## Conclusion
 
