@@ -32,6 +32,10 @@
   border: none;
 }
 
+.warrantyApp label {
+  color: #eee;
+}
+
 .inputBox {
   width: 18em;
 }

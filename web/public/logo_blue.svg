@@ -1,1 +1,90 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="76.053" height="159.534" viewBox="0 0 76.053 159.534"><defs><style>.a{fill:#2c7df7;}.b,.c{fill:#123262;}.b{font-size:28px;font-family:Museo-500, 'Museo 500';font-weight:500;}.c{font-size:19px;font-family:Constantia-Italic, Constantia;font-style:italic;}</style></defs><g transform="translate(-263.25 -1181)"><path class="a" d="M45.628,95.708q-10.3,0-15.01-4.93t-4.71-10.626a6.914,6.914,0,0,1,.821-3.506A6.026,6.026,0,0,1,28.976,74.4a6.914,6.914,0,0,1,3.506-.821,6.918,6.918,0,0,1,3.506.821,6.032,6.032,0,0,1,2.246,2.247,6.914,6.914,0,0,1,.821,3.506,6.616,6.616,0,0,1-1.2,4.108A5.594,5.594,0,0,1,35,86.342a7.789,7.789,0,0,0,4.493,2.792,22.19,22.19,0,0,0,6.135.877,13.623,13.623,0,0,0,7.724-2.3,13.393,13.393,0,0,0,5.095-6.793,29.522,29.522,0,0,0,1.643-10.19,27.71,27.71,0,0,0-1.808-10.572,13.063,13.063,0,0,0-5.205-6.574,13.9,13.9,0,0,0-7.449-2.135,14.37,14.37,0,0,0-6.574,2.191l-4.82,2.41v-2.41L55.927,24.716H25.908V54.733a10.663,10.663,0,0,0,1.643,6.136,5.679,5.679,0,0,0,5.041,2.41,8.445,8.445,0,0,0,5.039-1.754,17.812,17.812,0,0,0,4.162-4.271,1.612,1.612,0,0,1,.548-.714,1.091,1.091,0,0,1,.712-.273,2.557,2.557,0,0,1,1.425.6,2.977,2.977,0,0,1,.767,2.025,13.95,13.95,0,0,1-.275,1.535,14.507,14.507,0,0,1-5.149,6.353,12.763,12.763,0,0,1-7.229,2.191q-9.752,0-13.477-3.833T15.391,54.735V24.716H.052V19.128H15.391V6.421L11.885,2.912V.066H22.073l3.833,1.971V19.128l39.66-.109,3.945,3.943L45.191,47.284a16.31,16.31,0,0,1,4.6-1.1,19.87,19.87,0,0,1,8.874,2.52A18.334,18.334,0,0,1,66.334,55.5a24.344,24.344,0,0,1,3.451,8.217,34.835,34.835,0,0,1,.822,7.011A29.208,29.208,0,0,1,67.65,83.768a19.152,19.152,0,0,1-8.984,8.982,29.181,29.181,0,0,1-13.037,2.958Z" transform="translate(263.198 1180.934)"/><g transform="translate(263.303 1285.176)"><text class="b" transform="translate(0 26)"><tspan x="0" y="0">Tezos</tspan></text><text class="c" transform="translate(14.995 50.358)"><tspan x="0" y="0">Israel</tspan></text></g></g></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="250"
+   height="210"
+   viewBox="0 0 250 210"
+   version="1.1"
+   id="svg1097"
+   sodipodi:docname="logo_blue.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata1101">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2520"
+     inkscape:window-height="1352"
+     id="namedview1099"
+     showgrid="false"
+     inkscape:pagecheckerboard="false"
+     inkscape:zoom="5.2301454"
+     inkscape:cx="129.45521"
+     inkscape:cy="112.59892"
+     inkscape:window-x="20"
+     inkscape:window-y="68"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g1095" />
+  <defs
+     id="defs1081">
+    <style
+       id="style1079">.a{fill:#2c7df7;}.b,.c{fill:#123262;}.b{font-size:28px;font-family:Museo-500, 'Museo 500';font-weight:500;}.c{font-size:19px;font-family:Constantia-Italic, Constantia;font-style:italic;}</style>
+  </defs>
+  <g
+     transform="translate(-263.25,-1130.534)"
+     id="g1095">
+    <path
+       class="a"
+       d="m 403.20065,1269.3866 q -14.9535,0 -21.79145,-7.1574 -6.83796,-7.1573 -6.83796,-15.4268 a 10.037713,10.037713 0 0 1 1.19193,-5.09 8.7485189,8.7485189 0 0 1 3.26217,-3.2607 10.037713,10.037713 0 0 1 5.09,-1.192 10.04352,10.04352 0 0 1 5.09,1.192 8.7572297,8.7572297 0 0 1 3.26073,3.2622 10.037713,10.037713 0 0 1 1.19193,5.0899 9.6050782,9.6050782 0 0 1 -1.74216,5.9641 8.1213433,8.1213433 0 0 1 -4.14488,3.0211 11.308034,11.308034 0 0 0 6.52292,4.0535 32.21534,32.21534 0 0 0 8.90677,1.2732 19.777809,19.777809 0 0 0 11.21366,-3.3391 19.443895,19.443895 0 0 0 7.3969,-9.8621 42.859904,42.859904 0 0 0 2.3853,-14.7938 40.22925,40.22925 0 0 0 -2.62485,-15.3484 18.964803,18.964803 0 0 0 -7.55659,-9.5441 20.179956,20.179956 0 0 0 -10.81442,-3.0996 20.862299,20.862299 0 0 0 -9.54411,3.1809 l -6.99765,3.4989 v -3.4989 l 31.4938,-41.9888 h -43.58145 v 43.5786 a 15.480494,15.480494 0 0 0 2.3853,8.9082 8.244746,8.244746 0 0 0 7.3185,3.4988 12.260412,12.260412 0 0 0 7.31559,-2.5464 25.859379,25.859379 0 0 0 6.04238,-6.2007 2.3402942,2.3402942 0 0 1 0.79558,-1.0366 1.5839087,1.5839087 0 0 1 1.03368,-0.3963 3.7122407,3.7122407 0 0 1 2.06881,0.8711 4.3219948,4.3219948 0 0 1 1.11353,2.9399 20.252545,20.252545 0 0 1 -0.39924,2.2285 21.061196,21.061196 0 0 1 -7.4753,9.2232 18.529265,18.529265 0 0 1 -10.49503,3.1809 q -14.15791,0 -19.56585,-5.5647 -5.40793,-5.5647 -5.40648,-15.103 v -43.5815 h -22.26909 v -8.1126 h 22.26909 v -18.448 l -5.09,-5.0943 v -4.1318 h 14.79089 l 5.56474,2.8614 v 24.8127 l 57.5782,-0.1582 5.72733,5.7244 -35.30766,35.3106 a 23.678783,23.678783 0 0 1 6.67826,-1.597 28.847175,28.847175 0 0 1 12.88323,3.6585 26.617217,26.617217 0 0 1 11.13383,9.8664 35.342507,35.342507 0 0 1 5.01014,11.9294 50.573292,50.573292 0 0 1 1.19337,10.1785 42.404039,42.404039 0 0 1 -4.29296,18.9314 27.804785,27.804785 0 0 1 -13.04293,13.0401 42.364841,42.364841 0 0 1 -18.92705,4.2944 z"
+       id="path1083"
+       inkscape:connector-curvature="0"
+       style="fill:#2c7df7;stroke-width:1.45179546" />
+    <g
+       transform="translate(263.303,1285.176)"
+       id="g1093">
+      <text
+         class="b"
+         transform="translate(0,26)"
+         id="text1087"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;font-family:Museo-500, 'Museo 500';-inkscape-font-specification:'Museo-500, Museo 500, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#123262">
+        <tspan
+           x="0"
+           y="0"
+           id="tspan1085"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32px;font-family:Museo-500, 'Museo 500';-inkscape-font-specification:'Museo-500, Museo 500, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start">NFT Warranties</tspan>
+      </text>
+      <text
+         class="c"
+         transform="translate(14.995,50.358)"
+         id="text1091"
+         style="font-style:italic;font-size:19px;font-family:Constantia-Italic, Constantia;fill:#123262">
+        <tspan
+           x="0"
+           y="0"
+           id="tspan1089">by Damian Barabonkov</tspan>
+      </text>
+    </g>
+  </g>
+</svg>

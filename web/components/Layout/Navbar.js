@@ -11,7 +11,7 @@ export default function Navbar({ contractAddress, userAddress }) {
     <nav className="border-bottom border border-gray-100 bg-white py-3 px-5 fixed top-0 left-0 right-0 flex lg:flex-row flex-col justify-between items-center">
       <Link href={`/`}>
         <a className="">
-          <Image src="/horizontal_logo_blue.svg" width="128" height="54" alt="Tezos logo"/>
+          <Image src="/horizontal_logo_blue.svg" width="240" height="54" alt="Tezos logo"/>
         </a>
       </Link>
       <ul className="flex lg:flex-row flex-col lg:px-0 px-3 items-center h-full justify-center">

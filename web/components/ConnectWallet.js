@@ -6,7 +6,7 @@ export default function ConnectWallet({ contractAddress, onSubmit }) {
     <div className="connect-section flex justify-center items-center h-full flex-col">
       <div className="form-group flex  flex-col mb-5 text-center">
         <div className="logo mb-4">
-          <Image src="/logo_blue.svg" width="84" height="178" alt="tezos logo"/>
+          <Image src="/logo_blue.svg" width="300" height="210" alt="tezos logo"/>
         </div>
         <label className="text-md mb-3 text-left text-gray-700">
           Warranty Contract Address: { contractAddress }
