@@ -51,7 +51,7 @@ Setup before deployment.
 
 Build and deploy the smart contract.
 ```bash
-truffle migrate
+truffle migrate --network=florence
 ```
 
 Launch the web-based DApp interface. Take note of the `Warranty.mligo` contract address, which should begin with "K1...".

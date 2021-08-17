@@ -19,39 +19,34 @@ String.prototype.hexEncode = function(){
 }
 
 module.exports = async(deployer, network, _accounts)  => {
-    var initial_storage;
-
+    // Have different initial administrators for the local 
+    // dev network and the florence test network
+    var initial_admin;
     if (network === "development") {
-        initial_storage = { 
-            ledger:  new MichelsonMap(), 
-            operators: new MichelsonMap(),
-            reverse_ledger: new MichelsonMap(),
-            metadata: MichelsonMap.fromLiteral({ 
-                "": 'tezos-storage:contents'.hexEncode(),
-            }),
-            token_metadata: new MichelsonMap(),
-            next_token_id: 0,
-            admin: {
-                admin: alice.pkh,
-                pending_admin: null,
-            }
-        }
+        initial_admin = {
+            admin: alice.pkh,
+            pending_admin: null,
+        };
     } else if (network === "florence") {
-        initial_storage = { 
-            ledger:  new MichelsonMap(), 
-            operators: new MichelsonMap(),
-            reverse_ledger: new MichelsonMap(),
-            metadata: MichelsonMap.fromLiteral({ 
-                "": 'tezos-storage:contents'.hexEncode(),
-            }),
-            token_metadata: new MichelsonMap(),
-            next_token_id: 0,
-            admin: {
-                admin: pkh,
-                pending_admin: null,
-            }
+        initial_admin = {
+            admin: pkh,
+            pending_admin: null,
         }
     }
+
+    const initial_storage = { 
+        ledger:  new MichelsonMap(), 
+        operators: new MichelsonMap(),
+        reverse_ledger: MichelsonMap.fromLiteral({
+            [initial_admin.admin]: [],
+        }),
+        metadata: MichelsonMap.fromLiteral({ 
+            "": 'tezos-storage:contents'.hexEncode(),
+        }),
+        token_metadata: new MichelsonMap(),
+        next_token_id: 0,
+        admin: initial_admin,
+    };
 
     deployer.deploy(Warranty, initial_storage);
 };
