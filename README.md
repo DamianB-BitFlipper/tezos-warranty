@@ -1,6 +1,6 @@
 # Warranty NFTs
 
-Deployed live on the Florence testnet at address: `KT1U73CJBmBqsnQBoiZ9LCoz4Szi7vxrqBhb`
+Smart contract deployed live on the Florence testnet at address: `KT1U73CJBmBqsnQBoiZ9LCoz4Szi7vxrqBhb`.
 
 ## Problem Statement
 
@@ -8,21 +8,21 @@ Many consumer products come with warranties against manufacturing and regular-us
 
 Currently, the validity of the warranty is determined by some physical receipt or warranty card. This poses several issues:
 - The warranty document is easily falsifiable.
-- The warranty document is not necessarily standard among different sellers 
-- A bad acting authorized dealer could issue warranty cards for expired products "under the table"
+- The warranty document is not necessarily standard among different sellers.
+- A bad acting authorized dealer could issue warranty cards for expired products "under the table".
 
 ## Solution
 
 The issues mentioned above are all byproducts of maintaining warranties in the physical world. Tokenize the warranties and many of the problems related to the "real-world" disappear. Not only are the problems resolved, but new possibilities also emerge, such as tracking the exact ownership chain.
 
 With this solution:
-- NFTs cannot be falsified
+- NFTs cannot be falsified.
 - A warranty on this NFT DApp is standardized, no matter who issued it or when.
 - Finding bad-acting dealers will be simpler since it is easier to scan the blockchain for anomalous behaviors such as multiple warranty NFTs for the same product serial number. 
 
 New Possibilities:
-- The number of warranty transfers of a product can be limited and controlled. Some warranties are non-transferable to new owners whereas others are unlimited. Tokenized warranties can accurately enforce these rules.
-- The exact ownership chain of a product can be traced.
+- The number of warranty transfers of a product can be limited and controlled. Some warranties are non-transferable to new owners whereas others offer unlimited transfers. Tokenized warranties can accurately enforce these rules.
+- A product's exact ownership chain can be traced.
 
 ### Admin Roles
 
@@ -30,7 +30,7 @@ The administrator address is recorded as a part of the smart contract's storage.
 
 ### User Roles
 
-A user of this smart contract can query the blockchain for the warranty NFTs under their possession. Additionally, a user may transfer any of their warranties that are not yet expired and still have remaining allowed transfers. A user can also delegate custody of a specified warranty NFT to another address. A delegate may then operate on the NFT as if it were the user with the original ownership.
+A user of this smart contract can query the blockchain for the warranty NFTs under their possession. Additionally, a user may transfer any of their warranties that are not yet expired and still have remaining allowed transfers. A user can also delegate custody of a specified warranty NFT to another address. The delegate may then operate on the NFT as if they were the user with the original ownership.
 
 ## Setup
 
@@ -47,14 +47,14 @@ cd web && npm install && cd ..
 
 ### Quick Setup
 
-This setup uses the address of an instance of this project already deployed on Florence. The downside is that you will not have any admin privileges, and thus will not be able to issue any warranty NFTs. You will be a simple user of the Warranty DApp which can receive NFTs and transfer those in your possession to any other address.
+This quick setup uses an instance of this smart contract already deployed on Florence. The downside is that you will not have any admin privileges, since the admin is already set. Consequently, you will not be able to issue any warranty NFTs. You will be a simple user of the warranty DApp which can receive NFTs and transfer those in your possession to any other address.
 
 ```bash
 # Run from the base directory of the project
 yarn web:dev
 ```
 
-Navigate to `localhost:3001` in a web browser to access the DApp.
+Navigate to `localhost:3001` in a web browser to open the DApp.
 
 ### Total Control
 
@@ -69,7 +69,7 @@ Setup before deployment.
 Build and deploy the smart contract.
 ```bash
 # Note: To rebuild, if any changes were made to the smart contract code, add the flag `--reset`
-# since truffle does not properly detect the changes and does not rebuild
+# since truffle does not properly detect the changes and will not rebuild
 truffle migrate --network=florence
 ```
 
@@ -110,7 +110,7 @@ The `Warranty.mligo` smart contract has 6 entrypoints, 3 of which are required b
     
     Output: Blockchain state updated to reflect the added/removed operators.
     
-4. Mint - Creates a new warranty NFT for an intended recipient along with all of the associated warranty details
+4. Mint - Creates a new warranty NFT for an intended recipient along with all of the associated warranty details.
 
 	Input: A record containing the following fields:
     
@@ -141,9 +141,9 @@ The storage of this smart contract contains all of the state necessary for this 
 - `ledger`: A BigMap mapping `token_id` to `address` signifying ownership of a token by a particular address.
 - `operators`: A set (internally implemented with a BigMap mapping values to `unit`) of tuples containing the (`owner`, (`operator`, `token_id`)).
 - `reverse_ledger`: A BigMap mapping an `address` to a list of `token_id`'s owned by said address. This is a reverse lookup of the `ledger` storage field, hence the name.
-- `metadata`: A BigMap mapping strings to bytes to hold any metadata related to this Warranty smart contract.
+- `metadata`: A BigMap mapping strings to bytes to hold any metadata related to this warranty smart contract.
 - `token_metadata`: A BigMap mapping a `token_id` to a record containing the associated token's metadata. Token metadata includes issuer, owner, issue time, warranty duration, etc.
-- `next_token_id`: A natural number incremented on every new warranty NFT mint. Used to retrieve the next token number.
+- `next_token_id`: A natural number incremented on every new warranty NFT minted. Used to retrieve the next token's identifier number.
 - `admin`: A record containing the address of the current admin and any pending new admin.
 
 
@@ -161,7 +161,7 @@ Under the "Admin Panel", the administrator may enter all of the required informa
 
 ![Admin Panel Image](./images/admin_panel.png)
 
-Under the "User Panel", a user can view the warranty NFTs under their current possession as well as select any number of them to transfer to a specified recipient. Of course, the selected NFTs must have transfers allowed, otherwise, the operation will fail.
+Under the "User Panel", a user can view the warranty NFTs under their current possession as well as select any number of them to transfer to a specified recipient. Of course, in order to transfer a selected NFT, it must have transfers allowed. Otherwise, the operation will fail.
 
 ![User Panel Image](./images/user_panel.png)
 
