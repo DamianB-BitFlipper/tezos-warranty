@@ -26,8 +26,9 @@ First, install all required packages. The two principal packages are `truffle` f
 cd <warranty-nft-dir>
 
 # Install the required software
-npm install
 npm install -g truffle@tezos
+npm install
+cd web && npm install && cd ..
 ```
 
 ### Quick Setup
@@ -38,6 +39,8 @@ This setup uses the address of an instance of this project already deployed on F
 # Run from the base directory of the project
 yarn web:dev
 ```
+
+Navigate to `localhost:3001` in a web browser to access the DApp.
 
 ### Total Control
 
@@ -51,6 +54,8 @@ Setup before deployment.
 
 Build and deploy the smart contract.
 ```bash
+# Note: To rebuild, if any changes were made to the smart contract code, add the flag `--reset`
+# since truffle does not properly detect the changes and things all is the same
 truffle migrate --network=florence
 ```
 
