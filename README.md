@@ -1,5 +1,7 @@
 # Warranty NFTs
 
+Deployed live on the Florence testnet at address: `KT1U73CJBmBqsnQBoiZ9LCoz4Szi7vxrqBhb`
+
 ## Problem Statement
 
 Many consumer products come with warranties against manufacturing and regular-use defects. Warranties are only granted when sold through an authorized dealer or store and oftentimes are valid only for a specified time.
@@ -21,6 +23,14 @@ With this solution:
 New Possibilities:
 - The number of warranty transfers of a product can be limited and controlled. Some warranties are non-transferable to new owners whereas others are unlimited. Tokenized warranties can accurately enforce these rules.
 - The exact ownership chain of a product can be traced.
+
+### Admin Roles
+
+The administrator address is recorded as a part of the smart contract's storage. An administrator has the right to issue to any user a new warranty NFT with its respective metadata such as the product's serial number, the warranty's duration, etc. The administrator can also transfer their privileges to another administrator address.
+
+### User Roles
+
+A user of this smart contract can query the blockchain for the warranty NFTs under their possession. Additionally, a user may transfer any of their warranties that are not yet expired and still have remaining allowed transfers. A user can also delegate custody of a specified warranty NFT to another address. A delegate may then operate on the NFT as if it were the user with the original ownership.
 
 ## Setup
 
