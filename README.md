@@ -55,7 +55,7 @@ Setup before deployment.
 Build and deploy the smart contract.
 ```bash
 # Note: To rebuild, if any changes were made to the smart contract code, add the flag `--reset`
-# since truffle does not properly detect the changes and things all is the same
+# since truffle does not properly detect the changes and does not rebuild
 truffle migrate --network=florence
 ```
 
