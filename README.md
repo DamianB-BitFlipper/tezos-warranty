@@ -18,6 +18,10 @@ With this solution:
 - A warranty on this NFT DApp is standardized, no matter who issued it or when.
 - Finding bad-acting dealers will be simpler since it is easier to scan the blockchain for anomalous behaviors such as multiple warranty NFTs for the same product serial number. 
 
+New Possibilities:
+- The number of warranty transfers of a product can be limited and controlled. Some warranties are non-transferable to new owners whereas others are unlimited. Tokenized warranties can accurately enforce these rules.
+- The exact ownership chain of a product can be traced.
+
 ## Setup
 
 First, install all required packages. The two principal packages are `truffle` for smart contract compilation and deployment and `taquito` for the web DApp.
